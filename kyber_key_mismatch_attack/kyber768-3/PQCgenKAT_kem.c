@@ -26,7 +26,7 @@ void	fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L);
 /********** Attack *************/
 
 /* the table about h and corresponding s
- * example  h = 9 corresponding s = 0   */
+ * example  h = 5 corresponding s = 0   */
 static int htable[5][2] = {{5, 0}, {6, 1}, {4, -1}, {7, 2}, {3, -2}};
 
 /* check the h to get corresponding s */ 

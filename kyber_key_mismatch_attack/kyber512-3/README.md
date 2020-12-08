@@ -1,4 +1,5 @@
-This is key mismatch attack demo for Kyber512 NIST Round 3
+This is key mismatch attack demo for Kyber512 in NIST Round 3 
+and $sk \in [-3,3], (d_u,d_v) = (10,4)$.
 
 # Structure
 

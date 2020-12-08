@@ -1,4 +1,4 @@
-This is key mismatch attack demo for Kyber768 in NIST Round 3.
+This is key mismatch attack demo for Kyber512 in NIST Round 2.
 
 # Structure
 

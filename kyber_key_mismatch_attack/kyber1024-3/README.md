@@ -1,4 +1,4 @@
-This is key mismatch attack demo for Kyber1024 NIST Round 3
+This is key mismatch attack demo for Kyber1024 in NIST Round 3.
 
 # Structure
 

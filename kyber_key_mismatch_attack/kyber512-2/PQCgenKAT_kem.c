@@ -7,7 +7,6 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 #include <ctype.h>
 #include "rng.h"
@@ -23,20 +22,21 @@ int		FindMarker(FILE *infile, const char *marker);
 int		ReadHex(FILE *infile, unsigned char *A, int Length, char *str);
 void	fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L);
 
-/********** Attack *************/
-/* the table about h and corresponding s
- * example  h = 5 corresponding s = 0   */
-static int htable[7][2] = {{5, 0}, {6, 1}, {4, -1}, {7, 2}, {3, -2}, {8, 3}, {2, -3}};
 
+/********** Attack *************/
+
+/* the table about h and corresponding s
+ * example  h = 3 corresponding s = 0   */
+
+static int htable[3][2] = {{3, 0}, {2, -1}, {1, -2}};
 /* check the h to get corresponding s */ 
 static int checkh(int h) {
-    for(int i = 0; i < 7; i++) {
+    for(int i = 0; i < 3; i++) {
         if(htable[i][0] == h)
             return htable[i][1];
     }
-    return 99;
+    return 99;    //fail check
 }
-
 
 static int kyber_Attack(int r) {
     /* random init */
@@ -52,14 +52,14 @@ static int kyber_Attack(int r) {
     /*pk sk ct*/
     unsigned char       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];
     unsigned char       ct[CRYPTO_CIPHERTEXTBYTES];
-
+    
     /* the s  recovered by adversary */
     signed char         recs[KYBER_K][KYBER_N] = { 0 };
     /* the polyvec form of true s */
     polyvec             skpoly = { { 0 } };
     /* the m set by adversary */
     unsigned char       m[KYBER_SYMBYTES]  = { 0 };
-    m[0] = 0x1;         // first coeff of m is 1
+    m[0] = 0x1; // first coeff of m is 1
 
     /* get key pair */
     if (  crypto_kem_keypair(pk, sk, &skpoly) != 0 ) {
@@ -67,25 +67,36 @@ static int kyber_Attack(int r) {
         return KAT_CRYPTO_FAILURE;
     }
 
-    
-    int h ;         //parameter
+    int h ; //parameter
+    int h1;
     int query = 0;
 /*  controlling the version of the attack , */
-#define OPTIMIZATION                 // uncomment this to get the version without optimization
+#define OPTIMIZATION                         // uncomment this to get the version without optimization
 #ifndef OPTIMIZATION
     /*  no optimization */
     /* loop h to recover s */
     for(int i = 0; i < KYBER_K; i++) {
         for(int k = 0; k < KYBER_N; k++) {
-            for(h = 0; h < 16; h++) {
-                kemenc_Attack(ct, m, pk, h, k, i);     // choose appropriate ct
-                query += 1;         // count queries
-                if(oracle(ct, sk, m) == 1) {            // send ct to oracle 
-                    //printf("%d ",h);
+            for(h = 0; h < 7; h++) {
+                kemenc_Attack(ct, m, pk, h, k, i);
+                query += 1;
+                if(oracle(ct, sk, m) == 1) 
                     break;
-                }
             }
-            recs[i][k] = checkh(h);                     // check the value of h to get s
+            if(h == 4){
+                for(h1 = 1; h1 <= 2; h1++){
+                    kemenc_Attack(ct, m, pk, -h1, k, i);
+                    query += 1;
+                    if(oracle(ct, sk, m) == 1) 
+                        break;
+                }
+                if(h1 == 1)
+                    recs[i][k] = 2;
+                else
+                    recs[i][k] = 1;
+            }
+            else
+                recs[i][k] = checkh(h);
         }
     }
 
@@ -93,53 +104,51 @@ static int kyber_Attack(int r) {
     /*  optimization */
     for(int i = 0; i < KYBER_K; i++) {
         for(int k = 0; k < KYBER_N; k++) {
-            kemenc_Attack(ct, m, pk, 5, k, i);
+            kemenc_Attack(ct, m, pk, 3, k, i);
             if(oracle(ct, sk, m) == 1) {
                 query += 1;
-                kemenc_Attack(ct, m, pk, 4, k, i);
+                kemenc_Attack(ct, m, pk, 2, k, i);
                 if(oracle(ct, sk, m) == 0) {
                     recs[i][k] = 0;
                     query += 1;
                 }
                 else {
                     query += 1;
-                    kemenc_Attack(ct, m, pk, 3, k, i);
+                    kemenc_Attack(ct, m, pk, 1, k, i);
                     if(oracle(ct, sk, m) == 0) {
                         recs[i][k] = -1;
                         query += 1;
                     }
                     else {
+                        recs[i][k] = -2;
                         query += 1;
-                        kemenc_Attack(ct, m, pk, 2, k, i);
-                        if(oracle(ct, sk, m) == 0) {
-                            recs[i][k] = -2;
-                            query += 1;
-                        }
-                        else{
-                            recs[i][k] = -3;
-                            query += 1;
-                        }
                     }   
                 }
             }
             else {
+                // query += 1;
+                // kemenc_Attack(ct, m, pk, 4, k, i);
+                // if(oracle(ct, sk, m) == 1) {
+                //     query += 1;
+                //     kemenc_Attack(ct, m, pk, -1, k, i);
+                //     if(oracle(ct, sk, m) == 0) {
+                //         query += 1;
+                //         recs[i][k] = 1;
+                //     }
+                //     else {
+                //         query += 1;
+                //         recs[i][k] = 2;
+                //     }
+                // }
                 query += 1;
-                kemenc_Attack(ct, m, pk, 6, k, i);
-                if(oracle(ct, sk, m) == 1) {
-                    recs[i][k] = 1;
+                kemenc_Attack(ct, m, pk, -1, k, i);
+                if(oracle(ct, sk, m) == 0) {
                     query += 1;
+                    recs[i][k] = 1;
                 }
                 else {
-                    query += 1; 
-                    kemenc_Attack(ct, m, pk, 7, k, i);
-                    if(oracle(ct, sk, m) == 1) {
-                        recs[i][k] = 2;
-                        query += 1;
-                    }
-                    else{
-                        recs[i][k] = 3;
-                        query += 1;
-                    }
+                    query += 1;
+                    recs[i][k] = 2;
                 }
             }
         }
@@ -164,10 +173,8 @@ static int kyber_Attack(int r) {
     return query;
 }
 
-
 // need a rand seed from shell
-int
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
 
     if(argc == 1) {
@@ -179,6 +186,7 @@ main(int argc, char * argv[])
     /* start attack */
     kyber_Attack(rand);     
     return 0;
-
 }
+
+
 
