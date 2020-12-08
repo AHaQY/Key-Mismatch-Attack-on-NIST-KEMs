@@ -12,7 +12,7 @@
 
 static int test_pke_cpa()
 {
-	//key mismatch attack on Saber
+	//key mismatch attack on Firesaber
    // parameters: res: b'
    //          vprime: cm
    //            ss_a: message
