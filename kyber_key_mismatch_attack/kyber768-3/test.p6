@@ -3,7 +3,7 @@ my $n = 10000;
 my @p;
 sub subsum($k, $n) {
     for 1..$n -> $i {
-        my $rand = 1000.rand.Int;
+        my $rand = 50000.rand.Int;
         my $run = run './PQCgenKAT_kem',  ~$rand, :out;
         $run = $run.out.slurp(:close);
         if $run ~~ /fact \s queries\:\s (.*) \n/ {
