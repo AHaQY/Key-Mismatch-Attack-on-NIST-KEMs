@@ -8,7 +8,7 @@ void owcpa_samplemsg(unsigned char msg[NTRU_OWCPA_MSGBYTES],
 
 void owcpa_keypair(unsigned char *pk,
                    unsigned char *sk,
-                   const unsigned char seed[NTRU_SEEDBYTES],int G_real[701],int leng[1]);
+                   const unsigned char seed[NTRU_SEEDBYTES],int G_real[701],int leng[1],int recording[10]);
 
 void owcpa_enc(unsigned char *c,
                poly *rm,

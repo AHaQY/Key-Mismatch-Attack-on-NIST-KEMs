@@ -30,8 +30,8 @@ int test_pke_cpa(int succe[1])
     int                 done;
     unsigned char       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];//secret key of the Alice
     int ret_val;
-    int j,num,rj,rj0[2],flag[2],j0,sm=0,k,leng[1],query=0;
-    int g[701],g_sk[3]={-1,0,1},G_sk[5],G[701],target[10],G_real[701],num1[1]={0},num2[1]={0},same[701],num_same=0;
+    int j,num,rj,rj0[2],flag[2],j0,sm=0,k,leng[1],query=0,R;
+    int g[701],g_sk[3]={-1,0,1},G_sk[5],G[701],target[10],G_real[701],num1[1]={0},num2[1]={0},same[701],num_same=0,recording[10];
     
     for (int i=0; i<48; i++)
         entropy_input[i] = i;
@@ -48,13 +48,17 @@ int test_pke_cpa(int succe[1])
         g[i]=-2;
         G[i]=-3;
 	}
+	for(int i=0;i<10;i++)
+	{
+		recording[i]=-9;
+	}
 
 
         
         randombytes_init(seed, NULL, 256);
 
         // Generate the public/private keypair
-        if ( (ret_val = crypto_kem_keypair(pk, sk,G_real,leng)) != 0) //sk is the secret-key
+        if ( (ret_val = crypto_kem_keypair(pk, sk,G_real,leng,recording)) != 0) //sk is the secret-key
 		{
             printf("crypto_kem_keypair returned <%d>\n", ret_val);
             return 0;
@@ -813,258 +817,64 @@ for(j0=0;j0<NTRU_N;j0++)
   G[j0]=(G[j0]+8192)%8192;
 }
 
-int cntt=0;
-
-
-int recording[4]={-1,-1,-1,-1};
-for(int i=0;i<NTRU_N-9;++i)
-{
-  if(G_real[i]==G[0])
-{
-  if(G_real[i+1]==G[1])
-{
- if(G_real[i+2]==G[2])
-{
-  if(G_real[i+3]==G[3])
-{
- if(G_real[i+4]==G[4])
-{
- if(G_real[i+5]==G[5])
-{
-
-if(G_real[i+6]==G[6])
-{
-
-if(G_real[i+7]==G[7])
-{
-
-if(G_real[i+8]==G[8])
-{
-if(G_real[i+9]==G[9])
-{
-recording[0]=i;
-cntt++;
-}
-}
-}
-}
-}
-}
-}
-}
-
-}
-}
-
-
-if(G_real[i]==G[9])
-{
-  if(G_real[i+1]==G[8])
-{
- if(G_real[i+2]==G[7])
-{
-  if(G_real[i+3]==G[6])
-{
- if(G_real[i+4]==G[5])
-{
- if(G_real[i+5]==G[4])
-{
-
-if(G_real[i+6]==G[3])
-{
-
-if(G_real[i+7]==G[2])
-{
-
-if(G_real[i+8]==G[1])
-{
-if(G_real[i+9]==G[0])
-{
-recording[1]=i+9;
-cntt++;
-}
-
-}
-}
-}
-}
-}
-}
-}
-
-}
-}
-
-
-if(G_real[i]==((8192-G[0])%8192))
-{
-  if(G_real[i+1]==((8192-G[1])%8192))
-{
- if(G_real[i+2]==((8192-G[2])%8192))
-{
-  if(G_real[i+3]==((8192-G[3])%8192))
-{
- if(G_real[i+4]==((8192-G[4])%8192))
-{
- if(G_real[i+5]==((8192-G[5])%8192))
-{
-
-if(G_real[i+6]==((8192-G[6])%8192))
-{
-
-if(G_real[i+7]==((8192-G[7])%8192))
-{
-
-if(G_real[i+8]==((8192-G[8])%8192))
-{
-if(G_real[i+9]==((8192-G[9])%8192))
-{
-recording[2]=i;
-cntt++;
-}
-
-}
-}
-}
-}
-}
-}
-}
-
-}
-}
-
- if(G_real[i]==((8192-G[9])%8192))
-{
-  if(G_real[i+1]==((8192-G[8])%8192))
-{
- if(G_real[i+2]==((8192-G[7])%8192))
-{
-  if(G_real[i+3]==((8192-G[6])%8192))
-{
- if(G_real[i+4]==((8192-G[5])%8192))
-{
- if(G_real[i+5]==((8192-G[4])%8192))
-{
-
-if(G_real[i+6]==((8192-G[3])%8192))
-{
-
-if(G_real[i+7]==((8192-G[2])%8192))
-{
-
-if(G_real[i+8]==((8192-G[1])%8192))
-{
-if(G_real[i+9]==((8192-G[0])%8192))
-{
-recording[3]=i+9;
-cntt++;
-}
-
-}
-}
-}
-}
-}
-}
-}
-
-}
-}
-
-}
-
-
-
 //verify whether the found G is true or not 
-    if(recording[0]!=-1)
- { 
-   for(j=recording[0];j<NTRU_N;j++)
-  {
-    if(G_real[j]!=G[j-recording[0]])break;  
-  }
 
-  if(j==NTRU_N)
- {
-    for(j=0;j<recording[0];j++)
-   {
-    if(G_real[j]!=G[NTRU_N-recording[0]+j])break;
-   }
-    if(j==recording[0])
-    {
-            succe[0]=1;
+for(int i=0;i<10;i++)
+{
+	if(recording[i]==-9){break;}
+	else
+	{
+		for(R=0;R<recording[i]+1;R++)
+		{
+			if(G[R]!=G_real[recording[i]-R])
+			{
+				break;
+			}
+		}
+		if(R==recording[i]+1)
+		{
+			for(R=recording[i]+1;R<NTRU_N;R++)
+			{
+				if(G[R]!=G_real[NTRU_N+recording[i]-R])
+				{
+					break;
+				}
+			}
+		}
+		
+		if(R==NTRU_N)
+		{
+			succe[0]=1;
+			break;
+		}
+		else
+		{
+           for(R=0;R<recording[i]+1;R++)
+		  {
+			 if(((8192-G[R])%8192)!=G_real[recording[i]-R])
+			 {
+				break;
+			 }
+		  }
+		  if(R==recording[i]+1)
+		  {
+			  for(R=recording[i]+1;R<NTRU_N;R++)
+			 {
+				 if(((8192-G[R])%8192)!=G_real[NTRU_N+recording[i]-R])
+				 {
+					break;
+				 }
+			 }
+		  }		  
+		}
+		
+		if(R==NTRU_N)
+		{
+			succe[0]=1;
+			break;
+		}
 	}
-
- }
-
-}
-
-
- if(recording[1]!=-1)
-{
-  for(j=recording[1];j>=0;j--)
- {
-    if(G_real[j]!=G[recording[1]-j])break;
- }
-
- if(j==-1)
- {
-   for(j=recording[1]+1;j<NTRU_N;j++)
- {
-    if(G_real[j]!=G[NTRU_N+recording[1]-j])break;
- }
- if(j==NTRU_N)
- {
-         succe[0]=1;
- }
-}
-
-}
-
- if(recording[2]!=-1)
-{
-  for(j=recording[2];j<NTRU_N;j++)
-  {
-    if(G_real[j]!=((8192-G[j-recording[2]])%8192))break;
-  }
-
-  if(j==NTRU_N)
- {
-    for(j=0;j<recording[2];j++)
-   {
-    if(G_real[j]!=((8192-G[NTRU_N-recording[2]+j])%8192))break;
-   }
-    if(j==recording[2])
-    {
-            succe[0]=1;
-    }
-
- }
-}
-
-
- if(recording[3]!=-1)
-{
-
-for(j=recording[3];j>=0;j--)
- {
-    if(G_real[j]!=((8192-G[recording[3]-j])%8192))break;
- }
-
- if(j==-1)
-{
-   for(j=recording[3]+1;j<NTRU_N;j++)
- {
-    if(G_real[j]!=((8192-G[NTRU_N+recording[3]-j])%8192))break;
- }
- if(j==NTRU_N)
- {
-  succe[0]=1;
- }
-       
-
-}
-
+	
 }
 	
 	return query;
@@ -1082,19 +892,21 @@ int main(int argc, char *argv[])
     srand(argc);
     for(count=0;count<10000;count++)
    { 
+     printf("--------%d---------\n",count);
      succe[0]=0;
      tmp=test_pke_cpa(succe);
      if(succe[0]==1)
     {   
      query+=tmp;
      cnt++;
-    } 
+	 printf("success!\n");
+    }	
    }
      gettimeofday(&tv2,NULL);
      printf("total time:%.4fs\n",((double)(tv2.tv_sec-tv1.tv_sec)*1000+(double)(tv2.tv_usec-tv1.tv_usec)/1000)/1000);
-     printf("total_average time:%.4fs\n",(((double)(tv2.tv_sec-tv1.tv_sec)*1000+(double)(tv2.tv_usec-tv1.tv_usec)/1000)/1000)/10000.0);
-     printf("total_average accuracy:%.4f\n",(double)(cnt/10000.0));
-     printf("total_average queries:%.4f\n",(double)(query*1.0/cnt));
+      printf("total_average time:%.4fs\n",(((double)(tv2.tv_sec-tv1.tv_sec)*1000+(double)(tv2.tv_usec-tv1.tv_usec)/1000)/1000)/10000.0);
+      printf("total_average accuracy:%.4f\n",(double)(cnt/10000.0));
+      printf("total_average queries:%.4f\n",(double)(query*1.0/cnt));
 	return 0;
 }
 

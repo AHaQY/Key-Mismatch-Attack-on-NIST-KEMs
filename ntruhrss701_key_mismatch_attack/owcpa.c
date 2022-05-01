@@ -55,9 +55,9 @@ void owcpa_samplemsg(unsigned char msg[NTRU_OWCPA_MSGBYTES],
 
 void owcpa_keypair(unsigned char *pk,
                    unsigned char *sk,
-                   const unsigned char seed[NTRU_SAMPLE_FG_BYTES],int G_real[701],int leng[1])
+                   const unsigned char seed[NTRU_SAMPLE_FG_BYTES],int G_real[701],int leng[1],int recording[10])
 {
-  int i;
+  int i,cnt=0;
 
   poly x1, x2, x3, x4, x5;
 
@@ -106,11 +106,19 @@ void owcpa_keypair(unsigned char *pk,
  if( k > count )  
  {count = k;}
 
- for( i = 1, k = 1; i < NTRU_N; ++i )
+  for( i = 1,k=1; i < NTRU_N; ++i )   
  {
   if((G->coeffs[i-1] == (8192-G->coeffs[i]))&&(G->coeffs[i-1]!=8191)&&(G->coeffs[i-1]!=1) )
-   ++k;
-  else k = 1;
+  {++k;}
+  else 
+  {
+   if( k==count )  
+   {
+	   recording[cnt]=i-1;
+	   cnt++;
+   }
+   k = 1;
+  }
  }
 
  leng[0]=count;

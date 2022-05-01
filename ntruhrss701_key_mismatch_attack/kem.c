@@ -8,7 +8,7 @@
 #include<stdlib.h>
 
 // API FUNCTIONS 
-int crypto_kem_keypair(unsigned char *pk, unsigned char *sk,int G_real[701],int leng[1])
+int crypto_kem_keypair(unsigned char *pk, unsigned char *sk,int G_real[701],int leng[1],int recording[10])
 {
   unsigned char seed[NTRU_SAMPLE_FG_BYTES];
   srand((int)time(0));
@@ -17,7 +17,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk,int G_real[701],int 
   {
       randombytes(seed, NTRU_SAMPLE_FG_BYTES);
    }
-  owcpa_keypair(pk, sk, seed,G_real,leng);
+  owcpa_keypair(pk, sk, seed,G_real,leng,recording);
 
 
   return 0;
