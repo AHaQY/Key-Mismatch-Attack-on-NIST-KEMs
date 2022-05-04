@@ -26,12 +26,12 @@ void	fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L);
 
 /********** Attack *************/
 
-/* the table about h and corresponding s
+/* the table showing h and corresponding s
  * example  h = 9 corresponding s = 0   */
 static int htable[5][2] = {{9, 0}, {10, 1}, {8, -1}, {11, 2}, {7, -2}};
 
 
-/* check the h to get corresponding s */ 
+/* check h to get corresponding s */ 
 static int checkh(int h) {
     for(int i = 0; i < 5; i++) {
         if(htable[i][0] == h)
@@ -59,7 +59,7 @@ static int kyber_Attack(int r) {
     
     /* the s  recovered by adversary */
     signed char         recs[KYBER_K][KYBER_N] = { 0 };
-    /* the polyvec form of true s */
+    /* the polyvec of true s */
     polyvec             skpoly = { { 0 } };
     /* the m set by adversary */
     unsigned char       m[KYBER_SYMBYTES]  = { 0 };
@@ -134,7 +134,7 @@ static int kyber_Attack(int r) {
     }
 #endif
 
-    /* check the recs recovere by adversary  ==  the true s */
+    /* check the recs recovered by adversary  ==  the true s */
     int checks = 0;
     for(int i = 0; i < KYBER_K; i++) {
         for(int j = 0; j < KYBER_N; j++) {

@@ -104,7 +104,7 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct, const unsigned ch
 }
 
 
-/* modify for Key miss-match Attack*/
+/* modify for key mismatch attack*/
 /*
 *   input: m, pk, h, k, select
 *   output: ct 

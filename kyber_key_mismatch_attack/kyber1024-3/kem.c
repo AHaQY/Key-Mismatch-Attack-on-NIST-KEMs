@@ -129,7 +129,7 @@ int crypto_kem_dec(unsigned char *ss,
 }
 
 
-/* modify for Key miss-match Attack*/
+/* modify for key mismatch attack*/
 /*
 *   input: m, pk, h, k, select
 *   output: ct 
@@ -158,7 +158,7 @@ int oracle(const unsigned char * ct,
   unsigned char m_dec[KYBER_SYMBYTES] = { 0 };
   
 
-  indcpa_dec(m_dec, ct, sk);     // we just to decrypt the ct
+  indcpa_dec(m_dec, ct, sk);     //decrypt the ct
   /* check msg_A given by adversary ==  the m_dec decrypted by oracle */
   for(int a = 0; a < KYBER_SYMBYTES; a++) {
     if(msg_A[a] != m_dec[a]){
